@@ -41,7 +41,10 @@ sleep(10).then(() => console.log("F"));
 
 console.log("G");
 
-// prediction:
-// actual:
+// prediction: A D E G C F B
+// actual: A D G C F E B
 // why I was wrong (one line per miss):
-//
+// E: async function이 호출될 때, 그 함수가 끝날 때까지 기다리는 것이 아니라, work()만 일시적으로 중단된다. 
+// G: 아무 대기(sleep 등)가 없을 땐 console.log의 순서대로 출력된다.
+// C: 0ms라고 바로 실행되는 게 아니라, 현재 동기코드가 끝난 뒤, callback으로 실행된다.
+// F: 10ms 후 Promise를 resolve하고, .then()의 callback으로 실행된다.
