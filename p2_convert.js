@@ -36,7 +36,7 @@
 //
 // 커밋 메시지: p2: callbacks to await
 
-import fs from "node:fs";
+import fs, { readFile, stat } from "node:fs";
 import fsp from "node:fs/promises";
 
 const FILES = ["a.txt", "b.txt", "c.txt"];
@@ -73,9 +73,25 @@ function callbackVersion() {
 // --- async/await 버전 (여기를 채운다) ---
 // 같은 순서(a → b → c), 같은 출력. 중첩 없이, 루프 하나와 try/catch 하나로.
 async function main() {
-  // TODO
+  let totalLines = 0;
+
+  try {
+    for(const file of FILES) {
+      const text = await fsp.readFile(file, "utf-8");
+      const s = stats(text);
+
+      console.log(`${file}: ${s.lines} lines, ${s.words} words`);
+      totalLines += s.lines;
+    }
+    console.log(`total: ${totalLines} lines`);
+
+  } catch (error) {
+    console.log(`Failed: ${error.message}`);
+    process.exit(1);
+    }
+  
 }
 
 // 먼저 callbackVersion() 을 한 번 실행해서 기대 출력을 눈으로 본 다음, main() 으로 바꾼다.
-// callbackVersion();
+//callbackVersion();
 main();
