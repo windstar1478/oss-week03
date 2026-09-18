@@ -49,19 +49,31 @@ if (!KEY) {
 //    응답: { documents: [ { place_name, address_name, x, y }, ... ] }
 //          x 가 경도(longitude), y 가 위도(latitude). 둘 다 문자열이라 Number() 로 바꿔야 한다.
 export async function searchPlace(query, size = 3) {
-  // TODO: new URL + searchParams 로 URL 을 만든다 (query, size)
-  // TODO: const data = await getJSON(url, { headers: { Authorization: `KakaoAK ${KEY}` } });
-  // TODO: return data.documents.map(...)  →  { name, address, latitude: Number(d.y), longitude: Number(d.x) }
+  const url = new URL("https://dapi.kakao.com/v2/local/search/keyword.json");
+  url.searchParams.set("query", query);
+  url.searchParams.set("size", size);
+
+  const data = await getJSON(url, { headers: { Authorization: `KakaoAK ${KEY}` } });
+
+  return data.documents.map((d) => ({
+  name: d.place_name,
+  address: d.address_name,
+  latitude: Number(d.y),
+  longitude: Number(d.x),
+}));
+  
 }
 
 try {
   const places = await searchPlace(query);
   if (places.length === 0) throw new Error(`No place found for: ${query}`);
 
-  // TODO: 후보마다 한 줄: `${i + 1}. ${name}  ${address}  (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
+  places.forEach((p, i) => {
+  console.log(`${i + 1}. ${p.name}  ${p.address}  (${p.latitude.toFixed(4)}, ${p.longitude.toFixed(4)})`);
+});
+const fc = await forecast(places[0]);
+console.log(`Now at ${places[0].name}: ${fc.now.temp.toFixed(1)}${fc.now.unit}, ${describe(fc.now.code)}`);
 
-  // TODO: const fc = await forecast(places[0]);   // places[0] 에 latitude/longitude 가 있어서 forecast 가 그대로 받는다
-  // TODO: `Now at ${name}: ${temp.toFixed(1)}${unit}, ${describe(code)}`
 } catch (err) {
   console.error("Error:", err.message);
   process.exit(1);
